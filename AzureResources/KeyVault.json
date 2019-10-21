@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "defaultValue": "dev",
+      "type": "string",
+      "allowedValues": [
+        "dev",
+        "tst"
+      ]
+    },
+    "keyVaultAccessPolicies": {
+      "defaultValue": {
+        "list": []
+      },
+      "type": "object"
+    }
+  },
+  "variables": {
+    "keyVaultName": "[concat('codit-', parameters('environment'), '-accesskey')]",
+    "appServicePlanName": "[concat('codit-', parameters('environment'), '-we-sharedaccesskeyplan')]",
+    "appServiceName": "[concat('codit-', parameters('environment'), '-we-sharedaccesskeyexample-api')]",
+    "resourceGroupName": "[concat('codit-', parameters('environment'), '-sharedaccesskey')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[variables('keyVaultName')]",
+      "apiVersion": "2018-02-14",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "enabledForTemplateDeployment": true,
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": "[parameters('keyVaultAccessPolicies').list]",
+        "sku": {
+          "name": "Standard",
+          "family": "A"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(variables('keyVaultName'), '/add')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(concat('Microsoft.Web/sites/', variables('appServiceName')), '2018-02-01', 'Full').identity.principalId]",
+            "permissions": {
+              "keys": [
+                "list",
+                "get"
+              ],
+              "secrets": [
+                "list",
+                "get"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('appServiceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {
+        "name": "[variables('appServicePlanName')]"
+      },
+      "sku": {
+        "name": "B1",
+        "tier": "Basic",
+        "size": "B1",
+        "family": "B",
+        "capacity": "1"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('appServiceName')]",
+      "apiVersion": "2016-03-01",
+      "kind": "api",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "name": "[variables('appServiceName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+              "value": "1"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            },
+            {
+              "name": "KeyVault:Uri",
+              "value": "[reference(concat('Microsoft.KeyVault/vaults/', variables('keyVaultName')), '2018-02-14').vaultUri]"
+            }
+          ],
+          "alwaysOn": true
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

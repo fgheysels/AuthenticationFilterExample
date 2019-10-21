@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Codit.SharedAccessKeyExample</name>
+    </assembly>
+    <members>
+        <member name="M:Codit.SharedAccessKeyExample.Infra.SharedAccessKeyFilter.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Codit.SharedAccessKeyExample.Infra.SharedAccessKeyFilter"/> class.
+            </summary>
+        </member>
+        <member name="M:Codit.SharedAccessKeyExample.Infra.SharedAccessKeyFilter.OnAuthorizationAsync(Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)">
+            <summary>
+            Called early in the filter pipeline to confirm request is authorized.
+            </summary>
+            <param name="context">The <see cref="T:Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext" />.</param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task" /> that on completion indicates the filter has executed.
+            </returns>
+        </member>
+        <member name="M:Codit.SharedAccessKeyExample.Models.Customer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Codit.SharedAccessKeyExample.Models.Customer"/> class.
+            </summary>
+        </member>
+        <member name="M:Codit.SharedAccessKeyExample.Models.Customer.#ctor(System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Codit.SharedAccessKeyExample.Models.Customer"/> class.
+            </summary>
+        </member>
+    </members>
+</doc>

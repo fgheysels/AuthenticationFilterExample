@@ -39,7 +39,6 @@ namespace Codit.SharedAccessKeyExample
                 RestrictToJsonContentType(options);
 
                 options.Filters.Add(new SharedAccessKeyFilter("x-api-key", "apikeys--customerapi"));
-
             });
 
             services.AddHealthChecks();

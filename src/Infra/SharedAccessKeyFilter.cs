@@ -66,14 +66,7 @@ namespace Codit.SharedAccessKeyExample.Infra
 
             if (!IsApiKeyValid(foundSecret, requestSecretHeader))
             {
-                // When the API key is not valid, it might be possible that we're caching an old
-                // version of the key, so retrieve it again while bypassing the cache.
-                foundSecret = await secretProvider.GetRawSecretAsync(_secretName, ignoreCache: true);
-
-                if (!IsApiKeyValid(foundSecret, requestSecretHeader))
-                {
-                    context.Result = new UnauthorizedResult();
-                }
+                context.Result = new UnauthorizedResult();
             }
         }
 
